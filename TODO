@@ -1,0 +1,5 @@
+1. run the experiment on several hyperparameters:
+    a. change score - try 0.6, 0.7, 0.8 ...
+    b. use different clustering methodologies - tsne, LDA (?)
+2. think how to evaluate the results
+3. label interesting clusters with topics
