@@ -2,67 +2,102 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sentence_transformers import SentenceTransformer
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, DBSCAN
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.datasets import make_multilabel_classification
-
-LOAD = True
-NUM_CLUSTERS = 48 # hypothesis: number of layers
-CLUSTERING_METHOD = "KMEANS"
-
-# region Load Data
-df = pd.read_csv(f"scores_and_explanations.csv", sep=',')
-df = df[df.score >= 0.5]  # filtered scores
-if LOAD:
-    embeddings = np.load("neurons_explanations_embeddings_0.5.npy")
-else:
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    sentences = df['explanation'].values
-    embeddings = model.encode(sentences, show_progress_bar=True)
-    np.save("neurons_explanations_embeddings_0.5", embeddings)
-# endregion
-
-# region Clustering
-if CLUSTERING_METHOD == "LDA":
-    # Latent Dirichlet Allocation
-    lda = LatentDirichletAllocation(n_components=NUM_CLUSTERS, random_state=0)
-    lda.fit(embeddings)
-    predictions = lda.fit_transform(embeddings)
-if CLUSTERING_METHOD == "KMEANS":
-    # Create and fit a K-means clustering model
-    kmeans_model = KMeans(n_clusters=NUM_CLUSTERS)
-    predictions = kmeans_model.fit_predict(embeddings)
-# endregion
-
-# region Show Histograms
-counts = df.layer.value_counts().sort_index()
-fig, axes = plt.subplots(8, 6, figsize=(18, 24)) # 8 rows, 6 columns
-for i in range(8):
-    for j in range(6):
-        index = i * 6 + j
-        count_pred_i = df.iloc[predictions == index].layer.value_counts().sort_index()
-        df_counts = pd.DataFrame({"orig_count": counts})
-        df_counts['preds'] = count_pred_i
-        df_counts = df_counts.fillna(0)
-        count_pred_i_normalized = df_counts.preds / df_counts.orig_count
-
-        axes[i, j].plot(range(NUM_CLUSTERS), count_pred_i_normalized.values)
-        axes[i, j].set_title(f'Plot {index}')
-
-plt.tight_layout()
-plt.show()
-
-# for i in range(5): #range(NUM_CLUSTERS):
-#     count_pred_i = df.iloc[predictions == i].layer.value_counts().sort_index()
-#     df_counts = pd.DataFrame({"orig_count": counts})
-#     df_counts['preds'] = count_pred_i
-#     df_counts = df_counts.fillna(0)
-#     count_pred_i_normalized = df_counts.preds / df_counts.orig_count
-#
-#     plt.plot(range(NUM_CLUSTERS), count_pred_i_normalized.values)
-#
-# endregion
-# plt.show()
-print("finished")
+from forest.benchmarking.distance_measures import total_variation_distance
+from scipy.stats import entropy
 
 
+def get_percentile_samples(grouped_df, percentile):
+    percentile_80_value = grouped_df['score'].quantile(percentile)
+    filtered_df = grouped_df[grouped_df['score'] > percentile_80_value]
+    return filtered_df
+
+
+def load_df(percentile):
+    full_df = pd.read_csv(f"scores_and_explanations.csv", sep=',')
+    df = full_df.groupby(['layer']).apply(lambda x: get_percentile_samples(x, percentile)).reset_index(level=0, drop=True)
+    return df
+
+
+def load_embeddings(df, create_new=False, model_name='all-mpnet-base-v2'):
+    """Other model: all-MiniLM-L6-v2"""
+    if create_new:
+        model = SentenceTransformer(model_name)
+        sentences = df['explanation'].values
+        embeddings = model.encode(sentences, show_progress_bar=True)
+    else:
+        full_embeddings = np.load("../neurons_explanations_embeddings_full.npy")
+        embeddings = full_embeddings[df.index]
+
+    return embeddings
+
+
+def get_clustering_preds(embeddings, clustering_method="KMEANS", n_clusters=48):
+    if clustering_method == "LDA":
+        # Latent Dirichlet Allocation
+        lda = LatentDirichletAllocation(n_components=n_clusters, random_state=0)
+        lda.fit(embeddings)
+        predictions = lda.fit_transform(embeddings)
+    elif clustering_method == "KMEANS":
+        # Create and fit a K-means clustering model
+        kmeans_model = KMeans(n_clusters=n_clusters)
+        predictions = kmeans_model.fit_predict(embeddings)
+    else:
+        raise NotImplementedError("Not supported clustering method")
+
+    return predictions
+
+
+# Cluster sizes:
+# clusters_sizes = pd.Series(predictions).value_counts().sort_index()
+# clusters_sizes.describe()
+
+
+def layer_variance(df, n_clusters=48):
+    layer_variances = []
+    for i in range(n_clusters):
+        n_points_per_cluster = df[df.layer == i].kmeans_preds.value_counts()
+        var = n_points_per_cluster.var()  # Larger is better
+        layer_variances.append(var)
+    layer_variance_mean = np.array(layer_variances).mean()
+    print(f"{layer_variance_mean=}")
+
+
+def mean_cluster_variances(df, n_clusters):
+    cluster_vars = []
+    for i in range(n_clusters):
+        cluster_var = df.loc[df['cluster_preds'] == i]['layer'].var()
+        cluster_vars.append(cluster_var)
+
+    return pd.Series(cluster_vars).describe()
+
+
+def plot_cluster_hists(df):
+    fig, axes = plt.subplots(8, 6, figsize=(18, 24))  # 8 rows, 6 columns
+
+    for i in range(8):
+        for j in range(6):
+            index = i * 6 + j
+            count_pred_i = df.iloc[df['cluster_preds'] == index].layer.value_counts().sort_index()
+            axes[i, j].plot(range(48), count_pred_i.values)
+            axes[i, j].set_title(f'Plot {index}')
+
+    plt.tight_layout()
+    plt.show()
+
+
+def main():
+    # percentile = 0.8
+    n_clusters = 48
+    for percentile in [0.2, 0.5, 0.8, 0.9]:
+        df = load_df(percentile=percentile)
+        embeddings = load_embeddings(df)
+        df['cluster_preds'] = get_clustering_preds(embeddings, n_clusters=n_clusters)
+        mean_var = mean_cluster_variances(df, n_clusters)
+        print(f"{percentile=}, {mean_var=}")
+
+
+if __name__ == '__main__':
+    main()
