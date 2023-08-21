@@ -19,6 +19,6 @@
   "clustering_method='KMEANS'_n_clusters=192_percentile=0.5": "count    192.000000\nmean     172.916295\nstd       58.317176\nmin       53.465198\n25%      128.068756\n50%      157.896098\n75%      220.366916\nmax      303.697252\ndtype: float64",
   "clustering_method='KMEANS'_n_clusters=192_percentile=0.8": "count    192.000000\nmean     169.325719\nstd       51.200232\nmin       56.854981\n25%      124.708082\n50%      160.608581\n75%      210.983743\nmax      274.052872\ndtype: float64",
   "clustering_method='KMEANS'_n_clusters=192_percentile=0.9": "count    192.000000\nmean     162.900112\nstd       47.317949\nmin       46.107316\n25%      126.885608\n50%      158.596032\n75%      200.831431\nmax      283.685185\ndtype: float64",
-  "best_mean_var": 135.3341354293045,
-  "best_min_var": 24.0
+  "best_mean_var": 162.900112,
+  "best_min_var": 46.107316
 }

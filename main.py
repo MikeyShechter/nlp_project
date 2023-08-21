@@ -100,8 +100,8 @@ def main():
                 df['cluster_preds'] = get_clustering_preds(embeddings=embeddings, clustering_method=clustering_method, n_clusters=n_clusters)
                 mean_var = mean_cluster_variances(df, n_clusters)
                 results[current] = str(mean_var)
-                best_mean_var = min(best_mean_var, mean_var.mean())
-                best_min_var = min(best_min_var, mean_var.min())
+                best_mean_var = min(best_mean_var, mean_var['mean'])
+                best_min_var = min(best_min_var, mean_var['min'])
                 print(f"{current} statistics: {mean_var}")
 
     results["best_mean_var"] = best_mean_var
