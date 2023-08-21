@@ -1,10 +1,1 @@
-1. run the experiment on several hyperparameters (experiment format: {score_threshold}_{embedding_method}_{clustering_method}.png):
-    a. change percentile - try 0.6, 0.7, 0.8 ...
-    b. use different clustering methodologies - KMEANS, DBSCAN, LDA (?) Ozzzz + Yahav
-    c. Different number of clusters Ozzzz
-2. think how to evaluate the results
-    a. Variance of clusters - Done basically, maybe find a better metric
-    b. Variance of layers TODO think about how
-3. label interesting clusters with topics (reverse word2vec?)
-    a. If not for all clusters, take best clusters (lowest variance)
-4. Open Notion of tasks Ozzzz
+Moved to Notion - https://www.notion.so/c5a52045a4274cab9e24bd319c0d64e9?v=7df6ca17527d4bf9ae65a4a13c5013cd

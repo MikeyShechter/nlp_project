@@ -1,12 +1,10 @@
+import json
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sentence_transformers import SentenceTransformer
-from sklearn.cluster import KMeans, DBSCAN
+from sklearn.cluster import KMeans
 from sklearn.decomposition import LatentDirichletAllocation
-from sklearn.datasets import make_multilabel_classification
-from forest.benchmarking.distance_measures import total_variation_distance
-from scipy.stats import entropy
 
 
 def get_percentile_samples(grouped_df, percentile):
@@ -16,8 +14,9 @@ def get_percentile_samples(grouped_df, percentile):
 
 
 def load_df(percentile):
-    full_df = pd.read_csv(f"scores_and_explanations.csv", sep=',')
-    df = full_df.groupby(['layer']).apply(lambda x: get_percentile_samples(x, percentile)).reset_index(level=0, drop=True)
+    full_df = pd.read_csv(f"data/scores_and_explanations.csv", sep=',')
+    df = full_df.groupby(['layer']).apply(lambda x: get_percentile_samples(x, percentile)).reset_index(level=0,
+                                                                                                       drop=True)
     return df
 
 
@@ -28,7 +27,7 @@ def load_embeddings(df, create_new=False, model_name='all-mpnet-base-v2'):
         sentences = df['explanation'].values
         embeddings = model.encode(sentences, show_progress_bar=True)
     else:
-        full_embeddings = np.load("../neurons_explanations_embeddings_full.npy")
+        full_embeddings = np.load("data/neurons_explanations_embeddings_full.npy")
         embeddings = full_embeddings[df.index]
 
     return embeddings
@@ -89,14 +88,28 @@ def plot_cluster_hists(df):
 
 
 def main():
-    # percentile = 0.8
-    n_clusters = 48
-    for percentile in [0.2, 0.5, 0.8, 0.9]:
-        df = load_df(percentile=percentile)
-        embeddings = load_embeddings(df)
-        df['cluster_preds'] = get_clustering_preds(embeddings, n_clusters=n_clusters)
-        mean_var = mean_cluster_variances(df, n_clusters)
-        print(f"{percentile=}, {mean_var=}")
+    results = dict()
+    best_mean_var, best_min_var = float('inf'), float('inf')
+    # TODO for embedding method?
+    for clustering_method in ["KMEANS"]:
+        for n_clusters in [24, 48, 96, 192]:
+            for percentile in [0, 0.2, 0.5, 0.8, 0.9]:
+                current = f"{clustering_method=}_{n_clusters=}_{percentile=}"
+                df = load_df(percentile=percentile)
+                embeddings = load_embeddings(df)
+                df['cluster_preds'] = get_clustering_preds(embeddings=embeddings, clustering_method=clustering_method, n_clusters=n_clusters)
+                mean_var = mean_cluster_variances(df, n_clusters)
+                results[current] = str(mean_var)
+                best_mean_var = min(best_mean_var, mean_var.mean())
+                best_min_var = min(best_min_var, mean_var.min())
+                print(f"{current} statistics: {mean_var}")
+
+    results["best_mean_var"] = best_mean_var
+    results["best_min_var"] = best_min_var
+    with open("experiments/results.json", "w") as fp:
+        json.dump(results, fp)
+
+    print("done!")
 
 
 if __name__ == '__main__':
