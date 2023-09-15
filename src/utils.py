@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import sklearn
+from sklearn.cluster import DBSCAN
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 from sklearn.decomposition import LatentDirichletAllocation
@@ -13,7 +15,7 @@ def get_percentile_samples(grouped_df, percentile):
 
 
 def load_df(percentile):
-    full_df = pd.read_csv(f"../data/scores_and_explanations.csv", sep=',')
+    full_df = pd.read_csv("data\scores_and_explanations.csv", sep=',')
     df = full_df.groupby(['layer']).apply(lambda x: get_percentile_samples(x, percentile)).reset_index(level=0,
                                                                                                        drop=True)
     return df
@@ -26,7 +28,7 @@ def load_embeddings(df, create_new=False, model_name='all-mpnet-base-v2'):
         sentences = df['explanation'].values
         embeddings = model.encode(sentences, show_progress_bar=True)
     else:
-        full_embeddings = np.load("../data/neurons_explanations_embeddings_full.npy")
+        full_embeddings = np.load("data/neurons_explanations_embeddings_full.npy")
         embeddings = full_embeddings[df.index]
 
     return embeddings
@@ -42,6 +44,9 @@ def get_clustering_preds(embeddings, clustering_method="KMEANS", n_clusters=48):
         # Create and fit a K-means clustering model
         kmeans_model = KMeans(n_clusters=n_clusters)
         predictions = kmeans_model.fit_predict(embeddings)
+    elif clustering_method == "DBSCAN":
+        db_scan = DBSCAN()
+        predictions = db_scan.fit_predict(embeddings)
     else:
         raise NotImplementedError("Not supported clustering method")
 
@@ -72,12 +77,12 @@ def mean_cluster_variances(df, n_clusters):
     return pd.Series(cluster_vars).describe()
 
 
-def plot_cluster_hists(df):
-    fig, axes = plt.subplots(8, 6, figsize=(18, 24))  # 8 rows, 6 columns
+def plot_cluster_hists(df, nrows, ncols):
+    fig, axes = plt.subplots(nrows, ncols, figsize=(18, 24))  # 8 rows, 6 columns
 
-    for i in range(8):
-        for j in range(6):
-            index = i * 6 + j
+    for i in range(nrows):
+        for j in range(ncols):
+            index = i * ncols + j
             count_pred_i = df.iloc[df['cluster_preds'] == index].layer.value_counts().sort_index()
             axes[i, j].plot(range(48), count_pred_i.values)
             axes[i, j].set_title(f'Plot {index}')

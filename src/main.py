@@ -7,7 +7,7 @@ def main():
     results = dict()
     best_mean_var, best_min_var = float('inf'), float('inf')
     # TODO run also over embedding methods?
-    for clustering_method in ["KMEANS"]:
+    for clustering_method in ["KMEANS", "DBSCAN"]:
         for n_clusters in [24, 48, 96, 192]:
             for percentile in [0, 0.2, 0.5, 0.8, 0.9]:
                 current = f"{clustering_method=}_{n_clusters=}_{percentile=}"
@@ -22,7 +22,8 @@ def main():
 
     results["best_mean_var"] = best_mean_var
     results["best_min_var"] = best_min_var
-    with open("../experiments/results.json", "w") as fp:
+
+    with open("experiments/results.json", "w") as fp:
         json.dump(results, fp)
 
     print("done!")
