@@ -1,5 +1,6 @@
 import json
 
+from src.clustering_analysis import *
 from src.utils import *
 
 CLUSTERING_METHODS = ["KMEANS", "DBSCAN"]
@@ -31,9 +32,9 @@ def main():
 
             df['cluster_preds'] = predictions.result
 
-            unique_values, counts = np.unique(predictions.result, return_counts=True)
+            clustering_statistics = ClusteringStatistics(df, predictions)
+            mean_var = clustering_statistics.get_mean_cluster_variances()
 
-            mean_var = mean_cluster_variances(df, predictions.num_clusters)
             results[label] = str(mean_var)
             best_mean_var = min(best_mean_var, mean_var['mean'])
             best_min_var = min(best_min_var, mean_var['min'])

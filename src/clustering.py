@@ -3,10 +3,10 @@ from sklearn.cluster import KMeans, DBSCAN
 
 
 class ClusteredData:
-    def __init__(self, method: str, num_clusters: int, result: ndarray):
+    def __init__(self, method: str, result: ndarray):
         self.method = method
-        self.num_clusters = num_clusters
         self.result = result
+        self.num_clusters = max(result) + 1
 
 
 def get_clustering_preds(embeddings, clustering_method) -> ClusteredData:

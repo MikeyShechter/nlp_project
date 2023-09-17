@@ -1,13 +1,9 @@
 import os
 import pickle
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sklearn
-from sklearn.cluster import DBSCAN
 from sentence_transformers import SentenceTransformer
-from sklearn.decomposition import LatentDirichletAllocation
 
 from src.clustering import *
 
@@ -42,42 +38,8 @@ def load_embeddings(df, create_new=False, model_name='all-mpnet-base-v2'):
 # clusters_sizes = pd.Series(predictions).value_counts().sort_index()
 # clusters_sizes.describe()
 
-
-def layer_variance(df, n_clusters=48):
-    layer_variances = []
-    for i in range(n_clusters):
-        n_points_per_cluster = df[df.layer == i].kmeans_preds.value_counts()
-        var = n_points_per_cluster.var()  # Larger is better
-        layer_variances.append(var)
-    layer_variance_mean = np.array(layer_variances).mean()
-    print(f"{layer_variance_mean=}")
-
-
-def mean_cluster_variances(df, n_clusters):
-    cluster_vars = []
-    for i in range(n_clusters):
-        cluster_var = df.loc[df['cluster_preds'] == i]['layer'].var()
-        cluster_vars.append(cluster_var)
-
-    return pd.Series(cluster_vars).describe()
-
-
-def plot_cluster_hists(df, nrows, ncols):
-    fig, axes = plt.subplots(nrows, ncols, figsize=(18, 24))  # 8 rows, 6 columns
-
-    for i in range(nrows):
-        for j in range(ncols):
-            index = i * ncols + j
-            count_pred_i = df.iloc[df['cluster_preds'] == index].layer.value_counts().sort_index()
-            axes[i, j].plot(range(48), count_pred_i.values)
-            axes[i, j].set_title(f'Plot {index}')
-
-    plt.tight_layout()
-    plt.show()
-
-
 def save_predictions(predictions: ClusteredData, label):
-    directory = "data/predictions"
+    directory = "experiments/predictions"
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -87,7 +49,7 @@ def save_predictions(predictions: ClusteredData, label):
 
 def try_load_predictions(label) -> ClusteredData | None:
     try:
-        with open(f'data/predictions/{label}', 'rb') as file:
+        with open(f'experiments/predictions/{label}', 'rb') as file:
             predictions = pickle.load(file)
         return predictions
     except FileNotFoundError:
