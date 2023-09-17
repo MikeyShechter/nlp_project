@@ -1,11 +1,15 @@
+import os
+import pickle
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sklearn
 from sklearn.cluster import DBSCAN
 from sentence_transformers import SentenceTransformer
-from sklearn.cluster import KMeans
 from sklearn.decomposition import LatentDirichletAllocation
+
+from src.clustering import *
 
 
 def get_percentile_samples(grouped_df, percentile):
@@ -32,25 +36,6 @@ def load_embeddings(df, create_new=False, model_name='all-mpnet-base-v2'):
         embeddings = full_embeddings[df.index]
 
     return embeddings
-
-
-def get_clustering_preds(embeddings, clustering_method="KMEANS", n_clusters=48):
-    if clustering_method == "LDA":
-        # Latent Dirichlet Allocation
-        lda = LatentDirichletAllocation(n_components=n_clusters, random_state=0)
-        lda.fit(embeddings)
-        predictions = lda.fit_transform(embeddings)
-    elif clustering_method == "KMEANS":
-        # Create and fit a K-means clustering model
-        kmeans_model = KMeans(n_clusters=n_clusters)
-        predictions = kmeans_model.fit_predict(embeddings)
-    elif clustering_method == "DBSCAN":
-        db_scan = DBSCAN()
-        predictions = db_scan.fit_predict(embeddings)
-    else:
-        raise NotImplementedError("Not supported clustering method")
-
-    return predictions
 
 
 # Cluster sizes:
@@ -89,3 +74,24 @@ def plot_cluster_hists(df, nrows, ncols):
 
     plt.tight_layout()
     plt.show()
+
+
+def save_predictions(predictions: ClusteredData, label):
+    directory = "data/predictions"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    with open(f'{directory}/{label}', 'wb') as file:
+        pickle.dump(predictions, file)
+
+
+def try_load_predictions(label) -> ClusteredData | None:
+    try:
+        with open(f'data/predictions/{label}', 'rb') as file:
+            predictions = pickle.load(file)
+        return predictions
+    except FileNotFoundError:
+        print(f"Can't load '{label}', file does not exist")
+        return None
+
+
