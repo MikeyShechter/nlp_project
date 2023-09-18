@@ -14,6 +14,10 @@ def get_clustering_preds(embeddings, clustering_method) -> ndarray:
         predictions = kmeans_clustering(embeddings)
     elif clustering_method == "DBSCAN":
         predictions = dbscan_clustering(embeddings)
+    elif clustering_method == "GMM":
+        predictions = gmm_clustering(embeddings)
+    elif clustering_method == "MEANSHIFT":
+        predictions = mean_shift_clustering(embeddings)
     else:
         raise NotImplementedError(f"Clustering method '{clustering_method}' not supported")
 
@@ -35,20 +39,11 @@ def dbscan_clustering(embeddings) -> ndarray:
 
 
 def gmm_clustering(embeddings) -> ndarray:
-    # Create a GMM clustering model with 'k' components
     gmm = GaussianMixture(n_components=48)
-
-    # Fit the model to your data
     gmm.fit(embeddings)
-
-    # Get cluster assignments for each data point
     predictions = gmm.predict(embeddings)
 
     return predictions
-
-    # Get the parameters of the Gaussian components
-    # means = gmm.means_
-    # covariances = gmm.covariances_
 
 
 def mean_shift_clustering(embeddings) -> ndarray:

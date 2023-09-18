@@ -3,9 +3,10 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from numpy import ndarray
 from pandas import DataFrame
+from scipy.stats import chi2_contingency
 
 
-CLUSTER_PREDS_COL = "cluster_preds"
+CLUSTER_PREDS_COL = "cluster_idx"
 
 
 class ClusteringStatistics:
@@ -13,6 +14,10 @@ class ClusteringStatistics:
         assert len(neurons_df) == len(predictions), "Data frame and clustering result have different lengths " \
                                                          f"({len(neurons_df)} and ({predictions})"
         neurons_df[CLUSTER_PREDS_COL] = predictions
+        neurons_df = neurons_df[neurons_df['cluster_idx'] != -1]  # filter unclustered explanations
+
+        if len(neurons_df) < len(predictions):
+            print(f"Filtered unclustered explanations, started with {len(predictions)}, remaining {len(neurons_df)}")
 
         self.neurons_df = neurons_df
         self.predictions = predictions

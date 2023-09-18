@@ -59,3 +59,26 @@ def try_load_predictions(label) -> ndarray | None:
     return None
 
 
+def print_statistics(results: dict):
+    del results["best_mean_var"]
+    del results["best_min_var"]
+
+    sorted_result = dict(sorted(results.items(), key=lambda item: item[1].mean()))
+    for (label, var) in sorted_result.items():
+        print(f"Label: {label}, mean var: {var.mean()}")
+    print("----------")
+
+    sorted_result = dict(sorted(results.items(), key=lambda item: item[1].median()))
+    for (label, var) in sorted_result.items():
+        print(f"Label: {label}, median var: {var.median()}")
+    print("----------")
+
+    sorted_result = dict(sorted(results.items(), key=lambda item: item[1].max()))
+    for (label, var) in sorted_result.items():
+        print(f"Label: {label}, max var: {var.max()}")
+    print("----------")
+
+    sorted_result = dict(sorted(results.items(), key=lambda item: item[1].min()))
+    for (label, var) in sorted_result.items():
+        print(f"Label: {label}, min var: {var.min()}")
+    print("----------")
