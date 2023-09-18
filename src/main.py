@@ -4,10 +4,8 @@ import time
 from src.clustering_analysis import *
 from src.utils import *
 
-# CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT"]
 CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT"]
-# PERCENTILES = [0, 0.2, 0.5, 0.8, 0.9]
-PERCENTILES = [0.9]
+PERCENTILES = [0, 0.2, 0.5, 0.8, 0.9]
 SAVE_CLUSTERING_RESULT = True
 LOAD_CLUSTERING_RESULT = True
 TRIM_RESULTS = None  # Set an integer to take first K entries in the df
@@ -53,7 +51,7 @@ def main():
     results["best_mean_var"] = best_mean_var
     results["best_min_var"] = best_min_var
 
-    print_statistics(results)
+    # print_statistics(results)
 
     with open("experiments/results.json", "w") as fp:
         results = {key: str(value) for key, value in results.items()}

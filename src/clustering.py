@@ -10,6 +10,7 @@ def get_clustering_preds(embeddings, clustering_method) -> ndarray:
     #     lda = LatentDirichletAllocation(n_components=n_clusters, random_state=0)
     #     lda.fit(embeddings)
     #     predictions = lda.fit_transform(embeddings)
+    print(f"Calculating predictions, data size: {len(embeddings)}")
     if clustering_method == "KMEANS":
         predictions = kmeans_clustering(embeddings)
     elif clustering_method == "DBSCAN":
