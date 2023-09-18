@@ -1,15 +1,9 @@
 from numpy import ndarray
-from sklearn.cluster import KMeans, DBSCAN
+from sklearn.cluster import KMeans, DBSCAN, MeanShift
+from sklearn.mixture import GaussianMixture
 
 
-class ClusteredData:
-    def __init__(self, method: str, result: ndarray):
-        self.method = method
-        self.result = result
-        self.num_clusters = max(result) + 1
-
-
-def get_clustering_preds(embeddings, clustering_method) -> ClusteredData:
+def get_clustering_preds(embeddings, clustering_method) -> ndarray:
     # TODO: LDA can't handle negative entries, we skip it at the moment
     # if clustering_method == "LDA":
     #     # Latent Dirichlet Allocation
@@ -26,16 +20,46 @@ def get_clustering_preds(embeddings, clustering_method) -> ClusteredData:
     return predictions
 
 
-def kmeans_clustering(embeddings) -> ClusteredData:
+def kmeans_clustering(embeddings) -> ndarray:
     # TODO: Run over a few n's?
     for num_clusters in [48]:  # [24, 48, 96, 192]:
         kmeans_model = KMeans(n_clusters=num_clusters)
         predictions = kmeans_model.fit_predict(embeddings)
-        return ClusteredData("KMEANS", num_clusters, predictions)
+        return predictions
 
 
-def dbscan_clustering(embeddings) -> ClusteredData:
+def dbscan_clustering(embeddings) -> ndarray:
     db_scan = DBSCAN()
     predictions = db_scan.fit_predict(embeddings)
-    num_clusters = max(predictions)
-    return ClusteredData("DBSCAN", num_clusters, predictions)
+    return predictions
+
+
+def gmm_clustering(embeddings) -> ndarray:
+    # Create a GMM clustering model with 'k' components
+    gmm = GaussianMixture(n_components=48)
+
+    # Fit the model to your data
+    gmm.fit(embeddings)
+
+    # Get cluster assignments for each data point
+    predictions = gmm.predict(embeddings)
+
+    return predictions
+
+    # Get the parameters of the Gaussian components
+    # means = gmm.means_
+    # covariances = gmm.covariances_
+
+
+def mean_shift_clustering(embeddings) -> ndarray:
+    # Create a Mean Shift clustering model
+    meanshift = MeanShift()
+
+    # Fit the model to your data
+    meanshift.fit(embeddings)
+
+    # Get cluster assignments for each data point
+    labels = meanshift.labels_
+
+    return labels
+

@@ -38,7 +38,7 @@ def load_embeddings(df, create_new=False, model_name='all-mpnet-base-v2'):
 # clusters_sizes = pd.Series(predictions).value_counts().sort_index()
 # clusters_sizes.describe()
 
-def save_predictions(predictions: ClusteredData, label):
+def save_predictions(predictions: ndarray, label):
     directory = "experiments/predictions"
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -47,13 +47,15 @@ def save_predictions(predictions: ClusteredData, label):
         pickle.dump(predictions, file)
 
 
-def try_load_predictions(label) -> ClusteredData | None:
+def try_load_predictions(label) -> ndarray | None:
     try:
         with open(f'experiments/predictions/{label}', 'rb') as file:
             predictions = pickle.load(file)
         return predictions
     except FileNotFoundError:
         print(f"Can't load '{label}', file does not exist")
-        return None
+    except Exception as ex:
+        print(f"Can't load '{label}': {str(ex)}")
+    return None
 
 
