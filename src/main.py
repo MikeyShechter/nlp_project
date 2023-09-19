@@ -4,16 +4,17 @@ import time
 from src.clustering_analysis import *
 from src.utils import *
 
-CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT"]
-PERCENTILES = [0, 0.2, 0.5, 0.8, 0.9]
-SAVE_CLUSTERING_RESULT = True
-LOAD_CLUSTERING_RESULT = True
-TRIM_RESULTS = None  # Set an integer to take first K entries in the df
+CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT", "RANDOM"]
+# CLUSTERING_METHODS = ["DBSCAN"]
+# PERCENTILES = [0, 0.5, 0.9, 0.95, 0.99]
+PERCENTILES = [0.99]
+SAVE_PREDICTIONS = True
+LOAD_PERDICTIONS = True
+TRIM_DF = None  # Set an integer to take first K entries in the df
 
 
 def main():
-    results = dict()
-    best_mean_var, best_min_var = float('inf'), float('inf')
+    clustering_stats = dict()
 
     # TODO: run also over embedding methods?
     for clustering_method in CLUSTERING_METHODS:
@@ -21,41 +22,35 @@ def main():
             start_time = time.time()
             df = load_df(percentile=percentile)
             embeddings = load_embeddings(df)
+            if isinstance(TRIM_DF, int):
+                df = df[:TRIM_DF]
 
             label = f"{clustering_method=}_{percentile=}"
             print(f"Clustering label '{label}'")
 
             predictions = None
-            if LOAD_CLUSTERING_RESULT:
+            if LOAD_PERDICTIONS:
                 predictions = try_load_predictions(label)
 
             if predictions is None:
-                predictions = get_clustering_preds(embeddings=embeddings, clustering_method=clustering_method)
-                if SAVE_CLUSTERING_RESULT:
+                # TODO: Run over a few n's [24, 48, 96, 192]?
+                num_clusters = 48  # This argument is not always honored, it depends on the clustering method
+                predictions = get_clustering_preds(embeddings=embeddings, clustering_method=clustering_method,
+                                                   num_clusters=num_clusters)
+                if SAVE_PREDICTIONS:
                     save_predictions(predictions, label)
 
-            if isinstance(TRIM_RESULTS, int):
-                df = df[:TRIM_RESULTS]
-                predictions = predictions[:TRIM_RESULTS]
-
             clustering_statistics = ClusteringStatistics(df, predictions)
-            mean_var = clustering_statistics.get_mean_cluster_variances()
+            clustering_stats[label] = clustering_statistics
 
-            results[label] = mean_var
-            best_mean_var = min(best_mean_var, mean_var['mean'])
-            best_min_var = min(best_min_var, mean_var['min'])
+            # clustering_statistics.plot_clustered_embedding(embeddings)
+
             print(f"Label '{label}', elapsed {int(time.time() - start_time)} seconds")
-            print(f'Mean variance statistics:\n{mean_var}')
+            # print(f'Cluster's variance statistics:\n{cluster_var_summary}')
             print("--------------------------------")
 
-    results["best_mean_var"] = best_mean_var
-    results["best_min_var"] = best_min_var
-
-    # print_statistics(results)
-
-    with open("experiments/results.json", "w") as fp:
-        results = {key: str(value) for key, value in results.items()}
-        json.dump(results, fp, indent=4)
+    save_results(clustering_stats)
+    print_statistics(clustering_stats)
 
     print("done!")
 
