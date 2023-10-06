@@ -1,6 +1,6 @@
 numpy
 pandas
 matplotlib
-sentence_transformers
-sklearn
+sentence-transformers
+scikit-learn
 top2vec

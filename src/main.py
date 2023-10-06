@@ -29,7 +29,7 @@ def main():
             df = df[:TRIM_DF]
             embeddings = embeddings[:TRIM_DF]
 
-        label = f"{embedding_method=}_{clustering_method=}_{percentile=}"
+        label = f"{embedding_method}_{clustering_method}_{percentile}"
         print(f"Clustering label '{label}'")
 
         predictions = None
