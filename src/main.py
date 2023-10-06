@@ -6,13 +6,14 @@ from utils import *
 from embedding import *
 from clustering_analysis import *
 from top2vec import Top2Vec
+import matplotlib.pyplot as plt
 
 # EMBEDDING_METHODS = [TRANSFORMER, WORD2VEC]
 EMBEDDING_METHODS = [TRANSFORMER]
 # CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT", "RANDOM"]
 CLUSTERING_METHODS = ["KMEANS", "RANDOM"]
-# PERCENTILES = [0, 0.5, 0.9, 0.95, 0.99]
-PERCENTILES = [0, 0.9]
+PERCENTILES = [0, 0.5, 0.9, 0.95, 0.99]
+# PERCENTILES = [0, 0.9]
 SAVE_PREDICTIONS = True
 LOAD_PERDICTIONS = True
 TRIM_DF = None  # Set an integer to take first K entries in the df
@@ -20,8 +21,8 @@ TRIM_DF = None  # Set an integer to take first K entries in the df
 
 def main():
     clustering_stats = dict()
-
-    for embedding_method, clustering_method, percentile in product(EMBEDDING_METHODS, CLUSTERING_METHODS, PERCENTILES):
+    fig, axarr = plt.subplots(2, 5, figsize=(12, 15))
+    for i, (embedding_method, clustering_method, percentile) in enumerate(product(EMBEDDING_METHODS, PERCENTILES, CLUSTERING_METHODS)):
         start_time = time.time()
         df = load_df(percentile=percentile)
         embeddings = get_embeddings(df, embedding_method)
@@ -46,14 +47,21 @@ def main():
         clustering_statistics = ClusteringStatistics(df, predictions, label)
         clustering_stats[label] = clustering_statistics
 
-        clustering_statistics.layer_variance(predictions)
-        clustering_statistics.plot_clusters_scores_boxplot()
+        gini_coefs = clustering_statistics.layer_variance(predictions)
+        k = i // 2
+        j = i % 2
+        axarr[j, k].plot(range(len(gini_coefs)), gini_coefs)
+        axarr[j, k].set_title(label)
+        # clustering_statistics.plot_clusters_scores_boxplot()
+
         print(f"Label '{label}', elapsed {int(time.time() - start_time)} seconds")
         # print(f'Cluster's variance statistics:\n{cluster_var_summary}')
         print("--------------------------------")
-
-    save_results(clustering_stats)
-    print_statistics(clustering_stats)
+    plt.subplots_adjust(hspace=0.5, wspace=0.4)
+    plt.tight_layout()
+    plt.show()
+    # save_results(clustering_stats)
+    # print_statistics(clustering_stats)
 
     print("done!")
 
