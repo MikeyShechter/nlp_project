@@ -5,14 +5,13 @@ from itertools import product
 from utils import *
 from embedding import *
 from clustering_analysis import *
-from top2vec import Top2Vec
 
 # EMBEDDING_METHODS = [TRANSFORMER, WORD2VEC]
 EMBEDDING_METHODS = [TRANSFORMER]
 # CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT", "RANDOM"]
-CLUSTERING_METHODS = ["KMEANS", "RANDOM"]
+CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "RANDOM"]
 # PERCENTILES = [0, 0.5, 0.9, 0.95, 0.99]
-PERCENTILES = [0, 0.9]
+PERCENTILES = [0, 0.5, 0.9]
 SAVE_PREDICTIONS = True
 LOAD_PERDICTIONS = True
 TRIM_DF = None  # Set an integer to take first K entries in the df
@@ -46,7 +45,9 @@ def main():
         clustering_statistics = ClusteringStatistics(df, predictions, label)
         clustering_stats[label] = clustering_statistics
 
-        clustering_statistics.layer_variance(predictions)
+        f_statistic, p_value = clustering_statistics.get_anova_test()
+        print(f'{f_statistic=},{p_value=}')
+        # clustering_statistics.layer_variance(predictions) TODO ozzafar - it's broken
         clustering_statistics.plot_clusters_scores_boxplot()
         print(f"Label '{label}', elapsed {int(time.time() - start_time)} seconds")
         # print(f'Cluster's variance statistics:\n{cluster_var_summary}')
