@@ -5,6 +5,7 @@ from itertools import product
 from utils import *
 from embedding import *
 from clustering_analysis import *
+from top2vec import Top2Vec
 
 # EMBEDDING_METHODS = [TRANSFORMER, WORD2VEC]
 EMBEDDING_METHODS = [TRANSFORMER]
@@ -45,6 +46,7 @@ def main():
         clustering_statistics = ClusteringStatistics(df, predictions, label)
         clustering_stats[label] = clustering_statistics
 
+        clustering_statistics.layer_variance(predictions)
         clustering_statistics.plot_clusters_scores_boxplot()
         print(f"Label '{label}', elapsed {int(time.time() - start_time)} seconds")
         # print(f'Cluster's variance statistics:\n{cluster_var_summary}')
@@ -54,6 +56,27 @@ def main():
     print_statistics(clustering_stats)
 
     print("done!")
+
+
+def top2vec_exp():
+    # try pretrained model: 'universal-sentence-encoder'
+    # Top2Vec get's argument speed=fast-learn/learn/deep-learn
+    documents = list(df['explanation'].values)
+    model = Top2Vec(documents, topic_merge_delta=0.01)
+    model.get_num_topics()
+    topic_words, word_scores, topic_nums = model.get_topics()
+    model.search_documents_by_topic(0, model.get_topic_sizes())
+
+    docs_by_topic = [model.search_documents_by_topic(
+        i, model.get_topic_sizes()[0][i]) for i in range(model.get_num_topics())]
+    docs_topic0 = docs_by_topic[0][0]
+    model_topic0 = Top2Vec(docs_topic0)
+
+    filtered_df_model0 = df.iloc[docs_by_topic[0][2]].reset_index(drop=True)
+    docs_by_topic0 = [model_topic0.search_documents_by_topic(
+        i, model_topic0.get_topic_sizes()[0][i]) for i in range(model_topic0.get_num_topics())]
+
+    filtered_df_model0.iloc[docs_by_topic0[0][2]]['layer'].value_counts()
 
 
 if __name__ == '__main__':

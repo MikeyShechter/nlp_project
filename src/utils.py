@@ -14,7 +14,7 @@ def get_percentile_samples(grouped_df, percentile):
 
 
 def load_df(percentile=None):
-    full_df = pd.read_csv("data\scores_and_explanations.csv", sep=',')
+    full_df = pd.read_csv(os.path.join("data", "scores_and_explanations.csv"), sep=',')
 
     if percentile is None:
         df = full_df
@@ -86,3 +86,4 @@ def save_results(clustering_stats):
     with open("experiments/results.json", "w") as fp:
         clustering_stats = {key: str(value.get_cluster_variances()) for key, value in clustering_stats.items()}
         json.dump(clustering_stats, fp, indent=4)
+

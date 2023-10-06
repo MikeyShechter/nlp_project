@@ -3,3 +3,4 @@ pandas
 matplotlib
 sentence_transformers
 sklearn
+top2vec
