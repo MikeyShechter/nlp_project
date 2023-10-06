@@ -3,35 +3,27 @@ import os
 import pickle
 
 import pandas as pd
-from sentence_transformers import SentenceTransformer
 
 from src.clustering import *
 
 
 def get_percentile_samples(grouped_df, percentile):
     percentile_80_value = grouped_df['score'].quantile(percentile)
-    filtered_df = grouped_df[grouped_df['score'] > percentile_80_value]
+    filtered_df = grouped_df[grouped_df['score'] >= percentile_80_value]
     return filtered_df
 
 
-def load_df(percentile):
+def load_df(percentile=None):
     full_df = pd.read_csv("data\scores_and_explanations.csv", sep=',')
-    df = full_df.groupby(['layer']).apply(lambda x: get_percentile_samples(x, percentile)).reset_index(level=0,
-                                                                                                       drop=True)
-    return df
 
-
-def load_embeddings(df, create_new=False, model_name='all-mpnet-base-v2'):
-    """Other model: all-MiniLM-L6-v2"""
-    if create_new:
-        model = SentenceTransformer(model_name)
-        sentences = df['explanation'].values
-        embeddings = model.encode(sentences, show_progress_bar=True)
+    if percentile is None:
+        df = full_df
     else:
-        full_embeddings = np.load("data/neurons_explanations_embeddings_full.npy")
-        embeddings = full_embeddings[df.index]
+        df = full_df.groupby(['layer']).apply(lambda x: get_percentile_samples(x, percentile)).reset_index(level=0,
+                                                                                                           drop=True)
+    df['explanation'] = df['explanation'].fillna('')
 
-    return embeddings
+    return df
 
 
 # Cluster sizes:
@@ -43,14 +35,13 @@ def save_predictions(predictions: ndarray, label):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    with open(f'{directory}/{label}', 'wb') as file:
-        pickle.dump(predictions, file)
+    np.save(f"{directory}/{label}.npy", predictions)
 
 
 def try_load_predictions(label) -> ndarray | None:
     try:
-        with open(f'experiments/predictions/{label}', 'rb') as file:
-            predictions = pickle.load(file)
+        directory = "experiments/predictions"
+        predictions = np.load(f"{directory}/{label}.npy")
         return predictions
     except FileNotFoundError:
         print(f"Can't load '{label}', file does not exist")
