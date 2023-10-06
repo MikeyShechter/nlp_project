@@ -36,7 +36,6 @@ def main():
             predictions = try_load_predictions(label)
 
         if predictions is None:
-            # TODO: Run over a few n's [24, 48, 96, 192]?
             num_clusters = 48  # This argument is not always honored, it depends on the clustering method
             predictions = get_clustering_preds(embeddings=embeddings, clustering_method=clustering_method,
                                                num_clusters=num_clusters)
