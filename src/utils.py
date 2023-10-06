@@ -15,7 +15,7 @@ def get_percentile_samples(grouped_df, percentile):
 
 
 def load_df(percentile):
-    full_df = pd.read_csv("data\scores_and_explanations.csv", sep=',')
+    full_df = pd.read_csv(os.path.join("data", "scores_and_explanations.csv"), sep=',')
     df = full_df.groupby(['layer']).apply(lambda x: get_percentile_samples(x, percentile)).reset_index(level=0,
                                                                                                        drop=True)
     return df
@@ -82,3 +82,13 @@ def print_statistics(results: dict):
     for (label, var) in sorted_result.items():
         print(f"Label: {label}, min var: {var.min()}")
     print("----------")
+
+
+def gini(l):
+    # Mean absolute difference
+    mad = np.abs(np.subtract.outer(l, l)).mean()
+    # Relative mean absolute difference
+    rmad = mad/np.mean(l)
+    # Gini coefficient
+    g = 0.5 * rmad
+    return g
