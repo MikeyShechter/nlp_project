@@ -32,16 +32,18 @@ class ClusteringStatistics:
         for i in range(self.num_clusters):
             cluster_var = self.df.loc[self.df[CLUSTER_IDX] == i]['layer'].var()
             cluster_vars.append(cluster_var)
-            if cluster_var < min_var:
-                min_i = i
-                min_var = cluster_var
+
+            # cluster_var_normalized = cluster_var / self.df.loc[self.df[CLUSTER_IDX] == i]['layer'].count()
+            # if cluster_var_normalized < min_var:
+            #     min_i = i
+            #     min_var = cluster_var_normalized
 
         # TODO ozzafar - show the best clusters, consider normalize the min cluster var by the cluster size
         # min_cluster = self.df.loc[self.df[CLUSTER_IDX] == min_i]["layer"]
-        # print(f'{min_i=},{min_var=},{min_cluster.count()=},{min_cluster.value_counts()=}')
+        # print(f'{min_var=},{min_i=},{min_cluster.count()=},{min_cluster.value_counts()=}')
         #
-        # count_pred_i = self.df.loc[self.df[CLUSTER_IDX] == min_i].layer.value_counts().sort_index()
-        # plt.plot(range(self.num_clusters), count_pred_i.values)
+        # count_pred_i = self.df.loc[self.df[CLUSTER_IDX] == min_i].layer.value_counts().reindex(range(48), fill_value=0).sort_index()
+        # plt.plot(range(48), count_pred_i.values)
         # plt.title(f'Plot {min_i}')
         #
         # plt.tight_layout()
