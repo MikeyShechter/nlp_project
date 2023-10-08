@@ -3,7 +3,7 @@ import os
 import pickle
 
 import pandas as pd
-
+import matplotlib.pyplot as plt
 from src.clustering import *
 
 
@@ -87,3 +87,20 @@ def save_results(clustering_stats):
         clustering_stats = {key: str(value.get_cluster_variances()) for key, value in clustering_stats.items()}
         json.dump(clustering_stats, fp, indent=4)
 
+
+def save_gini(clustering_stats, h):
+    w = len(clustering_stats) // h
+    fig, axarr = plt.subplots(h, w, figsize=(12, 15))
+
+    for i, (label, cluster_stats) in enumerate(clustering_stats.items()):
+        gini_coefs = cluster_stats.layer_variance()
+
+        k = i // h
+        j = i % h
+        axarr[j, k].plot(range(len(gini_coefs)), gini_coefs)
+        axarr[j, k].set_title(label)
+
+    plt.subplots_adjust(hspace=1, wspace=0.4)
+    plt.tight_layout()
+    plt.show()
+    # plt.savefig(os.path.join("experiments", "gini.png"), bbox_inches='tight')

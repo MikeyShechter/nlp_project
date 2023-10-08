@@ -81,26 +81,20 @@ class ClusteringStatistics:
 
         plt.show()
 
-    def layer_variance(self, predictions):
+    def layer_variance(self):
         print("Layer variance statistics:")
         coefs = []
         max_coef = 0
         max_coef_layer = -1
-        for i in range(self.num_clusters):
-            mask = (self.neurons_df.layer == i).values
-            n_points_per_cluster = pd.Series(predictions[mask]).value_counts().values
+        for i in range(48):
+            mask = (self.df.layer == i).values
+            n_points_per_cluster = pd.Series(self.df.cluster_idx[mask]).value_counts().values
             # 0 means distributed equally, 1 means extremely concentrated
             # We want higher
             gini_coef = self._gini(n_points_per_cluster)
-            if gini_coef > max_coef:
-                max_coef = gini_coef
-                max_coef_layer = i
             coefs.append(gini_coef)
 
-        gini_coef_mean = np.array(coefs).mean()
-        print(f"{gini_coef_mean=}")
-        print(f"{max_coef=} in layer: {max_coef_layer=}")
-        return gini_coef_mean, max_coef, max_coef_layer
+        return np.array(coefs)
 
     def plot_cluster_hists(self, nrows, ncols):
         fig, axes = plt.subplots(nrows, ncols, figsize=(18, 24))  # 8 rows, 6 columns
