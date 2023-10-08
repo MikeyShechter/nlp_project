@@ -5,7 +5,6 @@ from itertools import product
 from utils import *
 from embedding import *
 from clustering_analysis import *
-from top2vec import Top2Vec
 import matplotlib.pyplot as plt
 
 # EMBEDDING_METHODS = [TRANSFORMER, WORD2VEC]
@@ -47,6 +46,8 @@ def main():
         clustering_statistics = ClusteringStatistics(df, predictions, label)
         clustering_stats[label] = clustering_statistics
 
+        f_statistic, p_value = clustering_statistics.get_anova_test()
+        print(f'{f_statistic=},{p_value=}')
         clustering_statistics.plot_clusters_scores_boxplot()
 
         print(f"Label '{label}', elapsed {int(time.time() - start_time)} seconds")

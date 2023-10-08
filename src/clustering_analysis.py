@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from numpy import ndarray
 from pandas import DataFrame
 from sklearn.manifold import TSNE
+import scipy.stats as stats
 
 CLUSTER_IDX = "cluster_idx"
 
@@ -26,10 +27,27 @@ class ClusteringStatistics:
 
     @functools.lru_cache(maxsize=None)
     def get_cluster_variances(self) -> pd.Series:
+        min_var = float('inf')
         cluster_vars = []
         for i in range(self.num_clusters):
             cluster_var = self.df.loc[self.df[CLUSTER_IDX] == i]['layer'].var()
             cluster_vars.append(cluster_var)
+
+            # cluster_var_normalized = cluster_var / self.df.loc[self.df[CLUSTER_IDX] == i]['layer'].count()
+            # if cluster_var_normalized < min_var:
+            #     min_i = i
+            #     min_var = cluster_var_normalized
+
+        # TODO ozzafar - show the best clusters, consider normalize the min cluster var by the cluster size
+        # min_cluster = self.df.loc[self.df[CLUSTER_IDX] == min_i]["layer"]
+        # print(f'{min_var=},{min_i=},{min_cluster.count()=},{min_cluster.value_counts()=}')
+        #
+        # count_pred_i = self.df.loc[self.df[CLUSTER_IDX] == min_i].layer.value_counts().reindex(range(48), fill_value=0).sort_index()
+        # plt.plot(range(48), count_pred_i.values)
+        # plt.title(f'Plot {min_i}')
+        #
+        # plt.tight_layout()
+        # plt.show()
 
         return pd.Series(cluster_vars).describe()
 
@@ -95,6 +113,11 @@ class ClusteringStatistics:
             coefs.append(gini_coef)
 
         return np.array(coefs)
+
+    def get_anova_test(self):
+        groups = [self.df.loc[self.df[CLUSTER_IDX] == i]['layer'].array for i in range(self.num_clusters)]
+        f_statistic, p_value = stats.f_oneway(*groups)
+        return f_statistic, p_value
 
     def plot_cluster_hists(self, nrows, ncols):
         fig, axes = plt.subplots(nrows, ncols, figsize=(18, 24))  # 8 rows, 6 columns

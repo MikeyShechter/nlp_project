@@ -1,9 +1,0 @@
-{
-  "best_mean_var": 146.03431021307915,
-  "best_min_var": 0.9166666666666666,
-  "clustering_method='DBSCAN'_n_clusters=48_percentile=0": "count     48.000000\nmean     146.034310\nstd       94.252541\nmin        0.916667\n25%       72.000000\n50%      144.387010\n75%      202.913095\nmax      355.300000\ndtype: float64",
-  "clustering_method='DBSCAN'_n_clusters=48_percentile=0.2": "count     48.000000\nmean     161.525908\nstd       84.409985\nmin        8.800000\n25%       90.614286\n50%      151.303968\n75%      224.430887\nmax      355.300000\ndtype: float64",
-  "clustering_method='DBSCAN'_n_clusters=48_percentile=0.5": "count     48.000000\nmean     166.863625\nstd       85.973850\nmin        8.800000\n25%      102.541425\n50%      161.484990\n75%      223.268393\nmax      377.800000\ndtype: float64",
-  "clustering_method='DBSCAN'_n_clusters=48_percentile=0.8": "count     48.000000\nmean     181.792471\nstd       79.542102\nmin       51.092742\n25%      117.059416\n50%      183.367110\n75%      237.013095\nmax      328.500000\ndtype: float64",
-  "clustering_method='DBSCAN'_n_clusters=48_percentile=0.9": "count     48.000000\nmean     160.804957\nstd       66.816102\nmin       43.463158\n25%      105.187843\n50%      157.913257\n75%      205.361150\nmax      301.935897\ndtype: float64"
-}
