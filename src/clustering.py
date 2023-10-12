@@ -4,7 +4,18 @@ from sklearn.cluster import KMeans, DBSCAN, MeanShift
 from sklearn.mixture import GaussianMixture
 
 
-def get_clustering_preds(embeddings, clustering_method, num_clusters) -> ndarray:
+def get_clustering_preds(embeddings: ndarray, clustering_method: str, num_clusters: int) -> ndarray:
+    """
+    Get clustering predictions for input embeddings using the specified clustering method.
+
+    Args:
+        embeddings (ndarray): Input data for clustering.
+        clustering_method (str): The clustering method to use (e.g., "KMEANS", "DBSCAN", "GMM").
+        num_clusters (int): The number of clusters to create.
+
+    Returns:
+        ndarray: Cluster assignments or predictions for each data point.
+    """
     # TODO: LDA can't handle negative entries, we skip it at the moment
     # if clustering_method == "LDA":
     #     # Latent Dirichlet Allocation
@@ -28,44 +39,84 @@ def get_clustering_preds(embeddings, clustering_method, num_clusters) -> ndarray
     return predictions
 
 
-def kmeans_clustering(embeddings, num_clusters) -> ndarray:
+def kmeans_clustering(embeddings: ndarray, num_clusters: int) -> ndarray:
+    """
+    Perform K-Means clustering on input data.
+
+    Args:
+        embeddings (ndarray): Input data for clustering.
+        num_clusters (int): The number of clusters to create.
+
+    Returns:
+        ndarray: Cluster assignments or predictions for each data point.
+    """
     kmeans_model = KMeans(n_clusters=num_clusters)
     predictions = kmeans_model.fit_predict(embeddings)
     return predictions
 
 
-def dbscan_clustering(embeddings) -> ndarray:
+def dbscan_clustering(embeddings: ndarray) -> ndarray:
+    """
+    Perform DBSCAN clustering on input data.
+
+    Args:
+        embeddings (ndarray): Input data for clustering.
+
+    Returns:
+        ndarray: Cluster assignments or predictions for each data point.
+    """
     db_scan = DBSCAN(eps=0.5)  # TODO: increase epsilon to avoid unclustered data
     predictions = db_scan.fit_predict(embeddings)
     return predictions
 
 
-def gmm_clustering(embeddings, num_clusters) -> ndarray:
+def gmm_clustering(embeddings: ndarray, num_clusters: int) -> ndarray:
+    """
+    Perform Gaussian Mixture Model (GMM) clustering on input data.
+
+    Args:
+        embeddings (ndarray): Input data for clustering.
+        num_clusters (int): The number of clusters to create.
+
+    Returns:
+        ndarray: Cluster assignments or predictions for each data point.
+    """
     gmm = GaussianMixture(n_components=num_clusters)
     gmm.fit(embeddings)
     predictions = gmm.predict(embeddings)
-
     return predictions
 
 
-def mean_shift_clustering(embeddings) -> ndarray:
-    # Create a Mean Shift clustering model
+def mean_shift_clustering(embeddings: ndarray) -> ndarray:
+    """
+    Perform Mean Shift clustering on input data.
+
+    Args:
+        embeddings (ndarray): Input data for clustering.
+
+    Returns:
+        ndarray: Cluster assignments or labels for each data point.
+    """
     meanshift = MeanShift()
-
-    # Fit the model to your data
     meanshift.fit(embeddings)
-
-    # Get cluster assignments for each data point
     labels = meanshift.labels_
-
     return labels
 
 
-def random_clustering(embeddings, num_clusters) -> ndarray:
+def random_clustering(embeddings: ndarray, num_clusters: int) -> ndarray:
+    """
+    Perform random clustering on input data.
+
+    Args:
+        embeddings (ndarray): Input data for clustering.
+        num_clusters (int): The number of clusters to create.
+
+    Returns:
+        ndarray: Random cluster assignments for each data point.
+    """
     size = len(embeddings)
 
     # Generate random cluster assignments for each element in embeddings
     cluster_assignments = np.random.randint(0, num_clusters, size=size)
 
     return cluster_assignments
-
