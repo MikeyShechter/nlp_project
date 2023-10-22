@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 EMBEDDING_METHODS = [TRANSFORMER]
 # CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT", "RANDOM"]
 CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN"]
-# PERCENTILES = [0, 0.5, 0.9, 0.95]
-PERCENTILES = [0, 0.9]
+PERCENTILES = [0, 0.5, 0.9, 0.95]
+# PERCENTILES = [0, 0.9]
 SAVE_PREDICTIONS = True
 LOAD_PERDICTIONS = True
 TRIM_DF = None  # Set an integer to take first K entries in the df
