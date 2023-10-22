@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # EMBEDDING_METHODS = [TRANSFORMER, WORD2VEC]
 EMBEDDING_METHODS = [TRANSFORMER]
 # CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT", "RANDOM"]
-CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN"]
+CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN","BERTOPIC"]
 PERCENTILES = [0, 0.5, 0.9, 0.95]
 # PERCENTILES = [0, 0.9]
 SAVE_PREDICTIONS = True
@@ -24,6 +24,7 @@ def main():
     for embedding_method, percentile, clustering_method in product(EMBEDDING_METHODS, PERCENTILES, CLUSTERING_METHODS):
         start_time = time.time()
         df = load_df(percentile=percentile)
+        explanations = df['explanation']
         embeddings = get_embeddings(df, embedding_method)
         if isinstance(TRIM_DF, int):
             df = df[:TRIM_DF]
@@ -38,7 +39,7 @@ def main():
 
         if predictions is None:
             num_clusters = 48  # This argument is not always honored, it depends on the clustering method
-            predictions = get_clustering_preds(embeddings=embeddings, clustering_method=clustering_method,
+            predictions = get_clustering_preds(orig_explanations=explanations, embeddings=embeddings, clustering_method=clustering_method,
                                                num_clusters=num_clusters)
             if SAVE_PREDICTIONS and TRIM_DF is None:
                 save_predictions(predictions, label)

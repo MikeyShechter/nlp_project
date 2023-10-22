@@ -1,14 +1,17 @@
+from typing import List
 import numpy as np
 from numpy import ndarray
 from sklearn.cluster import KMeans, DBSCAN, MeanShift
 from sklearn.mixture import GaussianMixture
+from bertopic import BERTopic
 
 
-def get_clustering_preds(embeddings: ndarray, clustering_method: str, num_clusters: int) -> ndarray:
+def get_clustering_preds(orig_explanations: List[str], embeddings: ndarray, clustering_method: str, num_clusters: int) -> ndarray:
     """
     Get clustering predictions for input embeddings using the specified clustering method.
 
     Args:
+        orig_explanations (List[str]): Raw explanations - used in topic modeling.
         embeddings (ndarray): Input data for clustering.
         clustering_method (str): The clustering method to use (e.g., "KMEANS", "DBSCAN", "GMM").
         num_clusters (int): The number of clusters to create.
@@ -33,6 +36,9 @@ def get_clustering_preds(embeddings: ndarray, clustering_method: str, num_cluste
         predictions = mean_shift_clustering(embeddings)
     elif clustering_method == "RANDOM":
         predictions = random_clustering(embeddings, num_clusters)
+    elif clustering_method == "BERTOPIC":
+        topic_model = BERTopic(min_topic_size=100)
+        predictions, probs = topic_model.fit_transform(orig_explanations)
     else:
         raise NotImplementedError(f"Clustering method '{clustering_method}' not supported")
 
