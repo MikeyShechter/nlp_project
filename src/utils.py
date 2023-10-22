@@ -88,7 +88,11 @@ def save_results(clustering_stats):
         json.dump(clustering_stats, fp, indent=4)
 
 
-def save_gini(clustering_stats, h):
+def draw_plots(clustering_stats, percentiles):
+    plot_gini(clustering_stats, len(percentiles))
+
+
+def plot_gini(clustering_stats, h):
     w = len(clustering_stats) // h
     fig, axarr = plt.subplots(h, w, figsize=(12, 15))
 
@@ -104,3 +108,5 @@ def save_gini(clustering_stats, h):
     plt.tight_layout()
     plt.show()
     # plt.savefig(os.path.join("experiments", "gini.png"), bbox_inches='tight')
+
+

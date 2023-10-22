@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 
 # EMBEDDING_METHODS = [TRANSFORMER, WORD2VEC]
 EMBEDDING_METHODS = [TRANSFORMER]
-# CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "GMM", "MEANSHIFT", "RANDOM"]
-CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN","BERTOPIC"]
-PERCENTILES = [0, 0.5, 0.9, 0.95]
-# PERCENTILES = [0, 0.9]
+# CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN", "BERTOPIC"]
+CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN"]
+# PERCENTILES = [0, 0.5, 0.9, 0.95]
+PERCENTILES = [0, 0.9]
 SAVE_PREDICTIONS = True
 LOAD_PERDICTIONS = True
 TRIM_DF = None  # Set an integer to take first K entries in the df
@@ -55,32 +55,14 @@ def main():
         # print(f'Cluster's variance statistics:\n{cluster_var_summary}')
         print("--------------------------------")
 
+    print("--------------------------------\nFinished clustering\n--------------------------------")
+
     save_results(clustering_stats)
     print_statistics(clustering_stats)
-    save_gini(clustering_stats, h=len(PERCENTILES))
+
+    draw_plots(clustering_stats, PERCENTILES)
 
     print("done!")
-
-
-def top2vec_exp():
-    # try pretrained model: 'universal-sentence-encoder'
-    # Top2Vec get's argument speed=fast-learn/learn/deep-learn
-    documents = list(df['explanation'].values)
-    model = Top2Vec(documents, topic_merge_delta=0.01)
-    model.get_num_topics()
-    topic_words, word_scores, topic_nums = model.get_topics()
-    model.search_documents_by_topic(0, model.get_topic_sizes())
-
-    docs_by_topic = [model.search_documents_by_topic(
-        i, model.get_topic_sizes()[0][i]) for i in range(model.get_num_topics())]
-    docs_topic0 = docs_by_topic[0][0]
-    model_topic0 = Top2Vec(docs_topic0)
-
-    filtered_df_model0 = df.iloc[docs_by_topic[0][2]].reset_index(drop=True)
-    docs_by_topic0 = [model_topic0.search_documents_by_topic(
-        i, model_topic0.get_topic_sizes()[0][i]) for i in range(model_topic0.get_num_topics())]
-
-    filtered_df_model0.iloc[docs_by_topic0[0][2]]['layer'].value_counts()
 
 
 if __name__ == '__main__':
