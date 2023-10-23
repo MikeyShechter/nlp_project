@@ -7,11 +7,13 @@ from pandas import DataFrame
 from sklearn.manifold import TSNE
 import scipy.stats as stats
 
+from src.utils import ClusteringParameters
+
 CLUSTER_IDX = "cluster_idx"
 
 
 class ClusteringStatistics:
-    def __init__(self, neurons_df: DataFrame, predictions: ndarray, label: str):
+    def __init__(self, neurons_df: DataFrame, predictions: ndarray, label: ClusteringParameters):
         assert len(neurons_df) == len(predictions), "Data frame and clustering result have different lengths " \
                                                          f"({len(neurons_df)} and ({predictions})"
         neurons_df[CLUSTER_IDX] = predictions
@@ -84,7 +86,7 @@ class ClusteringStatistics:
         # Create a box plot for the scores in each cluster
         cluster_data = [filtered_df[filtered_df[CLUSTER_IDX] == cluster]['score'].values for cluster in selected_clusters]
         plt.boxplot(cluster_data, labels=selected_clusters, vert=False)
-        plt.title(self.label)
+        plt.title(str(self.label))
         plt.xlim(-0.2, 1.0)
 
         # for i, cluster in enumerate(selected_clusters):
@@ -100,7 +102,7 @@ class ClusteringStatistics:
         plt.show()
 
     def layer_variance(self):
-        print("Layer variance statistics:")
+        # print("Layer variance statistics:")
         coefs = []
         max_coef = 0
         max_coef_layer = -1

@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 EMBEDDING_METHODS = [TRANSFORMER]
 # CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN", "BERTOPIC"]
 CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN"]
-# PERCENTILES = [0, 0.5, 0.9, 0.95]
-PERCENTILES = [0, 0.9]
+PERCENTILES = [0, 0.5, 0.9, 0.95]
+# PERCENTILES = [0, 0.9]
 SAVE_PREDICTIONS = True
 LOAD_PERDICTIONS = True
 TRIM_DF = None  # Set an integer to take first K entries in the df
@@ -30,7 +30,7 @@ def main():
             df = df[:TRIM_DF]
             embeddings = embeddings[:TRIM_DF]
 
-        label = f"{embedding_method}_{clustering_method}_{percentile}"
+        label = ClusteringParameters(embedding_method, clustering_method, percentile)
         print(f"Clustering label '{label}'")
 
         predictions = None
@@ -47,9 +47,9 @@ def main():
         clustering_statistics = ClusteringStatistics(df, predictions, label)
         clustering_stats[label] = clustering_statistics
 
-        f_statistic, p_value = clustering_statistics.get_anova_test()
-        print(f'{f_statistic=},{p_value=}')
-        clustering_statistics.plot_clusters_scores_boxplot()
+        # f_statistic, p_value = clustering_statistics.get_anova_test()
+        # print(f'{f_statistic=},{p_value=}')
+        # clustering_statistics.plot_clusters_scores_boxplot()
 
         print(f"Label '{label}', elapsed {int(time.time() - start_time)} seconds")
         # print(f'Cluster's variance statistics:\n{cluster_var_summary}')
@@ -57,10 +57,9 @@ def main():
 
     print("--------------------------------\nFinished clustering\n--------------------------------")
 
-    save_results(clustering_stats)
-    print_statistics(clustering_stats)
-
-    draw_plots(clustering_stats, PERCENTILES)
+    # save_results(clustering_stats)
+    # print_statistics(clustering_stats)
+    draw_plots(clustering_stats, PERCENTILES, CLUSTERING_METHODS)
 
     print("done!")
 
