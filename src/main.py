@@ -16,6 +16,7 @@ PERCENTILES = [0, 0.5, 0.9, 0.95]
 SAVE_PREDICTIONS = True
 LOAD_PERDICTIONS = True
 TRIM_DF = None  # Set an integer to take first K entries in the df
+ASSIGN_UNCLUSTERED_POINTS = True
 
 
 def main():
@@ -44,6 +45,9 @@ def main():
             if SAVE_PREDICTIONS and TRIM_DF is None:
                 save_predictions(predictions, label)
 
+        if ASSIGN_UNCLUSTERED_POINTS:
+            predictions = assign_unclustered_points_to_closest_cluster(embeddings, predictions)
+
         clustering_statistics = ClusteringStatistics(df, predictions, label)
         clustering_stats[label] = clustering_statistics
 
@@ -55,7 +59,7 @@ def main():
         # print(f'Cluster's variance statistics:\n{cluster_var_summary}')
         print("--------------------------------")
 
-    print("--------------------------------\nFinished clustering\n--------------------------------")
+    print("Finished clustering\n--------------------------------")
 
     # save_results(clustering_stats)
     # print_statistics(clustering_stats)
