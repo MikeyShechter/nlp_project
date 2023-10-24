@@ -127,8 +127,8 @@ def plot_gini(clustering_stats, h):
 
     plt.subplots_adjust(hspace=1, wspace=0.4)
     plt.tight_layout()
-    plt.show()
     # plt.savefig(os.path.join("experiments", "gini.png"), bbox_inches='tight')
+    plt.show()
 
 
 def plot_gini_for_clustering_methods(clustering_stats, clustering_methods):
@@ -141,11 +141,11 @@ def plot_gini_for_clustering_methods(clustering_stats, clustering_methods):
 
     Each method will have its own plot, and Gini coefficients for different percentiles are plotted on each plot.
     """
-    for method in clustering_methods:
+    for clustering_method in clustering_methods:
         plt.figure()
 
         for label, clustering_statistics in clustering_stats.items():
-            if label.clustering_method == method:
+            if label.clustering_method == clustering_method:
                 gini_coeff = clustering_statistics.layer_variance()
                 x_values = np.arange(len(gini_coeff))
                 plt.plot(x_values, gini_coeff, label=f'Percentile {label.percentile}')
@@ -153,7 +153,7 @@ def plot_gini_for_clustering_methods(clustering_stats, clustering_methods):
         plt.xlabel('Clusters')
         plt.ylabel('Gini coefficient')
         plt.legend(loc='best')
-        plt.title(method)
+        plt.title(clustering_method)
+        plt.savefig(os.path.join("experiments", "results", f"{clustering_method.lower()}_gini.png"), bbox_inches='tight')
+        plt.show()
 
-    plt.show()
-    # plt.savefig(os.path.join("experiments", "gini_by_clustering_method.png"), bbox_inches='tight')
