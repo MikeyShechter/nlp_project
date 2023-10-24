@@ -69,7 +69,7 @@ def try_load_predictions(label) -> ndarray:
 
 
 def print_statistics(clustering_stats: dict):
-    clustering_stats = {key: value.get_cluster_variances() for key, value in clustering_stats.items()}
+    clustering_stats = {key: value.get_cluster_variances_summary() for key, value in clustering_stats.items()}
 
     sorted_result = dict(sorted(clustering_stats.items(), key=lambda item: item[1]['mean']))
     for (label, var) in sorted_result.items():
@@ -93,24 +93,25 @@ def print_statistics(clustering_stats: dict):
 
 
 def save_results(clustering_stats):
-    clustering_stats_str = {key: str(value.get_cluster_variances()) for key, value in clustering_stats.items()}
+    clustering_stats_str = {key: str(value.get_cluster_variances_summary()) for key, value in clustering_stats.items()}
 
-    best_mean_var = min(clustering_stats.items(), key=lambda kvp: kvp[1].get_cluster_variances()['mean'])
-    clustering_stats_str["best_mean_var"] = f'{best_mean_var[0]}, {best_mean_var[1].get_cluster_variances()["mean"]}'
+    best_mean_var = min(clustering_stats.items(), key=lambda kvp: kvp[1].get_cluster_variances_summary()['mean'])
+    clustering_stats_str["best_mean_var"] = f'{best_mean_var[0]}, {best_mean_var[1].get_cluster_variances_summary()["mean"]}'
 
-    best_min_var = min(clustering_stats.items(), key=lambda kvp: kvp[1].get_cluster_variances()['min'])
-    clustering_stats_str["best_min_var"] = f'{best_min_var[0]}, {best_min_var[1].get_cluster_variances()["min"]}'
+    best_min_var = min(clustering_stats.items(), key=lambda kvp: kvp[1].get_cluster_variances_summary()['min'])
+    clustering_stats_str["best_min_var"] = f'{best_min_var[0]}, {best_min_var[1].get_cluster_variances_summary()["min"]}'
 
     with open("experiments/results.json", "w") as fp:
-        clustering_stats = {str(key): str(value.get_cluster_variances()) for key, value in clustering_stats.items()}
+        clustering_stats = {str(key): str(value.get_cluster_variances_summary()) for key, value in clustering_stats.items()}
         json.dump(clustering_stats, fp, indent=4)
 
 
 def draw_plots(clustering_stats, percentiles, clustering_methods):
-    # First method draws a different plot for each percentile/method, second draws a single plot fo each method
-    # (with several lines, for each percentile)
-    plot_gini(clustering_stats, len(percentiles))
-    plot_gini_for_clustering_methods(clustering_stats, clustering_methods)
+    # plot_gini(clustering_stats, len(percentiles))
+    # plot_layers_gini_coefficient(clustering_stats, clustering_methods)
+    # plot_clusters_variance(clustering_stats, clustering_methods)
+    # plot_clusters_variance_boxplot_by_method(clustering_stats, clustering_methods)
+    plot_clusters_variance_boxplot_by_percentile(clustering_stats, percentiles)
 
 
 def plot_gini(clustering_stats, h):
@@ -118,7 +119,7 @@ def plot_gini(clustering_stats, h):
     fig, axarr = plt.subplots(h, w, figsize=(12, 15))
 
     for i, (label, cluster_stats) in enumerate(clustering_stats.items()):
-        gini_coefs = cluster_stats.layer_variance()
+        gini_coefs = cluster_stats.get_layers_variance()
 
         k = i // h
         j = i % h
@@ -131,7 +132,7 @@ def plot_gini(clustering_stats, h):
     plt.show()
 
 
-def plot_gini_for_clustering_methods(clustering_stats, clustering_methods):
+def plot_layers_gini_coefficient(clustering_stats, clustering_methods):
     """
     Create separate plots for each clustering method's Gini coefficients.
 
@@ -146,14 +147,90 @@ def plot_gini_for_clustering_methods(clustering_stats, clustering_methods):
 
         for label, clustering_statistics in clustering_stats.items():
             if label.clustering_method == clustering_method:
-                gini_coeff = clustering_statistics.layer_variance()
+                gini_coeff = clustering_statistics.get_layers_variance()
                 x_values = np.arange(len(gini_coeff))
                 plt.plot(x_values, gini_coeff, label=f'Percentile {label.percentile}')
 
-        plt.xlabel('Clusters')
+        plt.xlabel('Layer')
         plt.ylabel('Gini coefficient')
         plt.legend(loc='best')
         plt.title(clustering_method)
-        plt.savefig(os.path.join("experiments", "results", f"{clustering_method.lower()}_gini.png"), bbox_inches='tight')
+        # plt.savefig(os.path.join("experiments", "results", f"{clustering_method.lower()}_gini.png"), bbox_inches='tight')
         plt.show()
 
+
+def plot_clusters_variance(clustering_stats, clustering_methods):
+    """
+    Create separate plots for each clustering method's cluster variances.
+
+    Parameters:
+    clustering_stats (dict): A dictionary mapping ClusteringLabel to an object with a 'CLUSTER()' method.
+    clustering_methods (list): A list of clustering method names.
+
+    Each method will have its own plot, and Gini coefficients for different percentiles are plotted on each plot.
+    """
+    for clustering_method in clustering_methods:
+        plt.figure(figsize=(10, 6))
+
+        for label, clustering_statistics in clustering_stats.items():
+            if label.clustering_method == clustering_method:
+                cluster_variances = clustering_statistics.get_clusters_variance()
+                x_values = np.arange(len(cluster_variances))
+                plt.plot(x_values, cluster_variances, label=f'Percentile {label.percentile}')
+
+
+        plt.xlabel('Cluster')
+        plt.ylabel('Variance')
+        plt.legend(loc='best')
+        plt.title(clustering_method)
+        plt.savefig(os.path.join("experiments", "results", f"{clustering_method.lower()}_cluster_variance.png"), bbox_inches='tight')
+        plt.show()
+
+
+def plot_clusters_variance_boxplot_by_method(clustering_stats, clustering_methods):
+    for clustering_method in clustering_methods:
+        plt.figure()
+
+        data = []
+        labels = []
+
+        for label, clustering_statistics in clustering_stats.items():
+            if label.clustering_method == clustering_method:
+                clusters_variance = clustering_statistics.get_clusters_variance()
+                labels.append(f'Percentile {label.percentile}')
+                data.append(clusters_variance)
+
+        plt.boxplot(data, labels=labels, showmeans=True)
+        plt.xlabel('Percentiles')
+        plt.ylabel('Cluster Variance')
+        plt.title(f'{clustering_method} Cluster Statistics')
+        plt.grid(True)  # Add grid lines
+        # plt.savefig(os.path.join("experiments", "results", f"{clustering_method.lower()}_cluster_variance_boxplot.png"), bbox_inches='tight')
+        plt.show()
+
+
+def plot_clusters_variance_boxplot_by_percentile(clustering_stats, percentiles):
+    for percentile in percentiles:
+        plt.figure()
+
+        data = []
+        labels = []
+
+        for label, clustering_statistics in clustering_stats.items():
+            if label.percentile == percentile:
+                cluster_variances = clustering_statistics.get_clusters_variance()
+                labels.append(label.clustering_method)
+                data.append(cluster_variances)
+
+                # We manually add the weighted average to the boxplot
+                cluster_variances_weighted_mean = clustering_statistics.get_weighted_mean_cluster_variances()
+                plt.scatter([len(data)], [cluster_variances_weighted_mean], marker='o', color='red', label='')
+                # print(f'Label {label} weighted mean: {cluster_variances_weighted_mean}')
+
+        plt.boxplot(data, labels=labels, showmeans=True)
+        plt.xlabel('Clustering method')
+        plt.ylabel('Cluster variance')
+        plt.title(f'Percentile {percentile} Cluster Statistics')
+        plt.grid(True)  # Add grid lines
+        plt.savefig(os.path.join("experiments", "results", f"percentile_{percentile}_cluster_variance_boxplot.png"), bbox_inches='tight')
+        plt.show()

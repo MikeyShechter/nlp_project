@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 
 # EMBEDDING_METHODS = [TRANSFORMER, WORD2VEC]
 EMBEDDING_METHODS = [TRANSFORMER]
-# CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN", "BERTOPIC"]
-CLUSTERING_METHODS = ["KMEANS", "RANDOM", "DBSCAN"]
-PERCENTILES = [0, 0.5, 0.9, 0.95]
-# PERCENTILES = [0, 0.9]
+# CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "RANDOM", "BERTOPIC"]
+CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "RANDOM"]
+# PERCENTILES = [0, 0.5, 0.9, 0.95]
+PERCENTILES = [0]
 SAVE_PREDICTIONS = True
 LOAD_PERDICTIONS = True
 TRIM_DF = None  # Set an integer to take first K entries in the df
@@ -40,8 +40,8 @@ def main():
 
         if predictions is None:
             num_clusters = 48  # This argument is not always honored, it depends on the clustering method
-            predictions = get_clustering_preds(orig_explanations=explanations, embeddings=embeddings, clustering_method=clustering_method,
-                                               num_clusters=num_clusters)
+            predictions = get_clustering_preds(orig_explanations=explanations, embeddings=embeddings,
+                                               clustering_method=clustering_method, num_clusters=num_clusters)
             if SAVE_PREDICTIONS and TRIM_DF is None:
                 save_predictions(predictions, label)
 

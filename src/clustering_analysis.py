@@ -28,7 +28,7 @@ class ClusteringStatistics:
         self.label = label
 
     @functools.lru_cache(maxsize=None)
-    def get_cluster_variances(self) -> pd.Series:
+    def get_clusters_variance(self) -> ndarray:
         min_var = float('inf')
         cluster_vars = []
         for i in range(self.num_clusters):
@@ -51,7 +51,10 @@ class ClusteringStatistics:
         # plt.tight_layout()
         # plt.show()
 
-        return pd.Series(cluster_vars).describe()
+        return np.array(cluster_vars)
+
+    def get_cluster_variances_summary(self) -> pd.Series:
+        return pd.Series(self.get_cluster_variances_summary()).describe()
 
     def get_weighted_mean_cluster_variances(self) -> float:
         """Returns a weighted average of the clusters' variances (weight is the cluster's size)"""
@@ -101,7 +104,7 @@ class ClusteringStatistics:
 
         plt.show()
 
-    def layer_variance(self):
+    def get_layers_variance(self):
         # print("Layer variance statistics:")
         coefs = []
         max_coef = 0
