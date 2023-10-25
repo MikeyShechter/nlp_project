@@ -54,7 +54,7 @@ class ClusteringStatistics:
         return np.array(cluster_vars)
 
     def get_cluster_variances_summary(self) -> pd.Series:
-        return pd.Series(self.get_cluster_variances_summary()).describe()
+        return pd.Series(self.get_clusters_variance()).describe()
 
     def get_weighted_mean_cluster_variances(self) -> float:
         """Returns a weighted average of the clusters' variances (weight is the cluster's size)"""

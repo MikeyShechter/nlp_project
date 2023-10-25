@@ -2,6 +2,7 @@ import json
 import time
 from itertools import product
 
+from src.experiment_visualizer import ExperimentVisualizer
 from utils import *
 from embedding import *
 from clustering_analysis import *
@@ -12,11 +13,12 @@ EMBEDDING_METHODS = [TRANSFORMER]
 # CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "RANDOM", "BERTOPIC"]
 CLUSTERING_METHODS = ["KMEANS", "DBSCAN", "RANDOM"]
 # PERCENTILES = [0, 0.5, 0.9, 0.95]
-PERCENTILES = [0]
+PERCENTILES = [0, 0.5, 0.9]
 SAVE_PREDICTIONS = True
 LOAD_PERDICTIONS = True
 TRIM_DF = None  # Set an integer to take first K entries in the df
 ASSIGN_UNCLUSTERED_POINTS = True
+SAVE_FIGURES = True
 
 
 def main():
@@ -62,8 +64,9 @@ def main():
     print("Finished clustering\n--------------------------------")
 
     # save_results(clustering_stats)
-    # print_statistics(clustering_stats)
-    draw_plots(clustering_stats, PERCENTILES, CLUSTERING_METHODS)
+    print_statistics(clustering_stats)
+    # experiment_visualizer = ExperimentVisualizer(clustering_stats, CLUSTERING_METHODS, PERCENTILES, SAVE_FIGURES)
+    # experiment_visualizer.plot_all()
 
     print("done!")
 
