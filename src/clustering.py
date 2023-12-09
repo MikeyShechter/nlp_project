@@ -38,8 +38,7 @@ def get_clustering_preds(orig_explanations: List[str], embeddings: ndarray, clus
     elif clustering_method == "RANDOM":
         predictions = random_clustering(embeddings, num_clusters)
     elif clustering_method == "BERTOPIC":
-        topic_model = BERTopic(min_topic_size=100)
-        predictions, probs = topic_model.fit_transform(orig_explanations)
+        predictions = bertopic_clustering(orig_explanations)
     else:
         raise NotImplementedError(f"Clustering method '{clustering_method}' not supported")
 
@@ -129,6 +128,20 @@ def random_clustering(embeddings: ndarray, num_clusters: int) -> ndarray:
 
     return cluster_assignments
 
+def bertopic_clustering(sentences: list[str]) -> list[int]:
+    """
+    Perform BERTopic clustering on input data.
+
+    Args:
+        sentences (ndarray): Input data for clustering.
+
+    Returns:
+        ndarray: Cluster assignments or labels for each data point.
+    """
+    topic_model = BERTopic(min_topic_size=100)
+    predictions, probs = topic_model.fit_transform(sentences)
+
+    return predictions
 
 def assign_unclustered_points_to_closest_cluster(embeddings: ndarray, predictions: ndarray):
     """

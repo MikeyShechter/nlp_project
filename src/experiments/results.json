@@ -1,8 +1,14 @@
 {
     "TRANSFORMER_KMEANS_0": "count     48.000000\nmean     176.379984\nstd       51.308738\nmin       82.474173\n25%      139.758954\n50%      166.743744\n75%      200.062871\nmax      283.227427\ndtype: float64",
+    "TRANSFORMER_DBSCAN_0": "count    517.000000\nmean     157.460378\nstd       58.194885\nmin        3.090909\n25%      116.889434\n50%      150.138742\n75%      191.631868\nmax      359.211111\ndtype: float64",
+    "TRANSFORMER_BERTOPIC_0": "count    470.000000\nmean     176.163301\nstd       56.841593\nmin       64.433325\n25%      134.193035\n50%      164.882374\n75%      215.912898\nmax      321.786013\ndtype: float64",
     "TRANSFORMER_RANDOM_0": "count     48.000000\nmean     191.922265\nstd        1.825520\nmin      188.460907\n25%      190.756704\n50%      191.939743\n75%      192.985744\nmax      196.186167\ndtype: float64",
-    "TRANSFORMER_DBSCAN_0": "count    516.000000\nmean     144.679373\nstd      106.902061\nmin        0.800000\n25%       67.345536\n50%      127.938889\n75%      193.779167\nmax      882.000000\ndtype: float64",
+    "TRANSFORMER_KMEANS_0.5": "count     48.000000\nmean     174.678500\nstd       56.192064\nmin       86.402341\n25%      133.307214\n50%      158.244291\n75%      218.357144\nmax      288.659331\ndtype: float64",
+    "TRANSFORMER_DBSCAN_0.5": "count    465.000000\nmean     155.733461\nstd       57.611299\nmin       25.179523\n25%      116.125420\n50%      146.265176\n75%      192.461572\nmax      327.294624\ndtype: float64",
+    "TRANSFORMER_BERTOPIC_0.5": "count    257.000000\nmean     175.459696\nstd       57.781449\nmin       73.872370\n25%      127.353249\n50%      161.640468\n75%      217.712732\nmax      312.521685\ndtype: float64",
+    "TRANSFORMER_RANDOM_0.5": "count     48.000000\nmean     191.911563\nstd        3.056485\nmin      184.983399\n25%      189.565960\n50%      191.565765\n75%      194.044270\nmax      198.961984\ndtype: float64",
     "TRANSFORMER_KMEANS_0.9": "count     48.000000\nmean     168.228992\nstd       39.334666\nmin       95.870423\n25%      137.281208\n50%      164.308277\n75%      198.554634\nmax      245.253952\ndtype: float64",
-    "TRANSFORMER_RANDOM_0.9": "count     48.000000\nmean     191.972884\nstd        8.295059\nmin      173.613130\n25%      187.161798\n50%      191.982105\n75%      197.426230\nmax      213.456362\ndtype: float64",
-    "TRANSFORMER_DBSCAN_0.9": "count    337.000000\nmean     139.920830\nstd       83.679037\nmin        4.250000\n25%       77.566667\n50%      127.655556\n75%      192.222222\nmax      418.800000\ndtype: float64"
+    "TRANSFORMER_DBSCAN_0.9": "count    337.000000\nmean     158.419727\nstd       54.973779\nmin       29.435256\n25%      116.081046\n50%      152.804295\n75%      201.076923\nmax      359.694737\ndtype: float64",
+    "TRANSFORMER_BERTOPIC_0.9": "count     56.000000\nmean     174.900045\nstd       44.695041\nmin       94.556658\n25%      137.972290\n50%      172.078434\n75%      204.948175\nmax      259.303195\ndtype: float64",
+    "TRANSFORMER_RANDOM_0.9": "count     48.000000\nmean     191.972884\nstd        8.295059\nmin      173.613130\n25%      187.161798\n50%      191.982105\n75%      197.426230\nmax      213.456362\ndtype: float64"
 }
