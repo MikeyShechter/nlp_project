@@ -103,10 +103,11 @@ class ClusteringStatistics:
 
         return np.array(coefs)
 
-    def get_anova_test(self):
-        groups = [self.df.loc[self.df[CLUSTER_IDX] == i]['layer'].array for i in range(self.num_clusters)]
-        f_statistic, p_value = stats.f_oneway(*groups)
-        return f_statistic, p_value
+    def get_statistics_for_lowest_variance_cluster(self):
+        variances = self.get_clusters_variance()
+        min_cluster_index = np.argmin(variances)
+        min_cluster_statistics = self.df.loc[self.df[CLUSTER_IDX] == min_cluster_index].describe()
+        return min_cluster_statistics
 
     def plot_cluster_hists(self, nrows, ncols):
         fig, axes = plt.subplots(nrows, ncols, figsize=(18, 24))  # 8 rows, 6 columns
